@@ -1,0 +1,186 @@
+\ Model Dimensionnement_Ferme_init_energy_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+\ Signature: 0xb43782a954b02019
+Minimize
+ 
+Subject To
+ bilan[6233]: 0.0081 Np - S_plus[6233] + S_minus[6233] - curtail[6233]
+   = 24.95931496
+ bilan[6234]: - S_plus[6234] + S_minus[6234] - curtail[6234]
+   = 31.5881951264
+ bilan[6235]: - S_plus[6235] + S_minus[6235] - curtail[6235]
+   = 35.4394698884
+ bilan[6236]: - S_plus[6236] + S_minus[6236] - curtail[6236]
+   = 32.6203139204
+ bilan[6237]: - S_plus[6237] + S_minus[6237] - curtail[6237]
+   = 25.0130545284
+ bilan[6238]: - S_plus[6238] + S_minus[6238] - curtail[6238] = 18.463524
+ bilan[6239]: - S_plus[6239] + S_minus[6239] - curtail[6239]
+   = 12.2125023136
+ bilan[6240]: - S_plus[6240] + S_minus[6240] - curtail[6240]
+   = 15.3106803296
+ bilan[6241]: - S_plus[6241] + S_minus[6241] - curtail[6241]
+   = 15.2346538176
+ bilan[6242]: - S_plus[6242] + S_minus[6242] - curtail[6242]
+   = 13.11506003240001
+ bilan[6243]: - S_plus[6243] + S_minus[6243] - curtail[6243]
+   = 11.1458304384
+ bilan[6244]: - S_plus[6244] + S_minus[6244] - curtail[6244]
+   = 11.2919631796
+ bilan[6245]: 0.00036 Np - S_plus[6245] + S_minus[6245] - curtail[6245]
+   = 15.54822765440001
+ bilan[6246]: 0.00828 Np - S_plus[6246] + S_minus[6246] - curtail[6246]
+   = 19.4009203424
+ bilan[6247]: 0.02466 Np - S_plus[6247] + S_minus[6247] - curtail[6247]
+   = 27.9841298336
+ bilan[6248]: 0.03672 Np - S_plus[6248] + S_minus[6248] - curtail[6248]
+   = 35.6594294916
+ bilan[6249]: 0.03474 Np - S_plus[6249] + S_minus[6249] - curtail[6249]
+   = 42.2877577216
+ bilan[6250]: 0.03708 Np - S_plus[6250] + S_minus[6250] - curtail[6250]
+   = 38.4890232964
+ bilan[6251]: 0.0369 Np - S_plus[6251] + S_minus[6251] - curtail[6251]
+   = 32.5266467104
+ bilan[6252]: 0.03366 Np - S_plus[6252] + S_minus[6252] - curtail[6252]
+   = 26.1358508676
+ bilan[6253]: 0.03618 Np - S_plus[6253] + S_minus[6253] - curtail[6253]
+   = 25.4513556404
+ bilan[6254]: 0.03078 Np - S_plus[6254] + S_minus[6254] - curtail[6254]
+   = 24.7132564096
+ bilan[6255]: 0.02394 Np - S_plus[6255] + S_minus[6255] - curtail[6255]
+   = 25.3934978624
+ bilan[6256]: 0.0126 Np - S_plus[6256] + S_minus[6256] - curtail[6256]
+   = 26.0001807584
+ bilan[6257]: 0.0027 Np - S_plus[6257] + S_minus[6257] - curtail[6257]
+   = 30.2444838084
+ bilan[6258]: - S_plus[6258] + S_minus[6258] - curtail[6258]
+   = 34.5830070304
+ bilan[6259]: - S_plus[6259] + S_minus[6259] - curtail[6259]
+   = 34.1731046596
+ bilan[6260]: - S_plus[6260] + S_minus[6260] - curtail[6260]
+   = 29.9025805236
+ SoC_initial_absolute: S[0] = 10
+ limite_de_panneaux: Np <= 490
+ dynamique[6233]: - S[6233] + S[6234] - S_plus[6233] + S_minus[6233] = 0
+ dynamique[6234]: - S[6234] + S[6235] - S_plus[6234] + S_minus[6234] = 0
+ dynamique[6235]: - S[6235] + S[6236] - S_plus[6235] + S_minus[6235] = 0
+ dynamique[6236]: - S[6236] + S[6237] - S_plus[6236] + S_minus[6236] = 0
+ dynamique[6237]: - S[6237] + S[6238] - S_plus[6237] + S_minus[6237] = 0
+ dynamique[6238]: - S[6238] + S[6239] - S_plus[6238] + S_minus[6238] = 0
+ dynamique[6239]: - S[6239] + S[6240] - S_plus[6239] + S_minus[6239] = 0
+ dynamique[6240]: - S[6240] + S[6241] - S_plus[6240] + S_minus[6240] = 0
+ dynamique[6241]: - S[6241] + S[6242] - S_plus[6241] + S_minus[6241] = 0
+ dynamique[6242]: - S[6242] + S[6243] - S_plus[6242] + S_minus[6242] = 0
+ dynamique[6243]: - S[6243] + S[6244] - S_plus[6243] + S_minus[6243] = 0
+ dynamique[6244]: - S[6244] + S[6245] - S_plus[6244] + S_minus[6244] = 0
+ dynamique[6245]: - S[6245] + S[6246] - S_plus[6245] + S_minus[6245] = 0
+ dynamique[6246]: - S[6246] + S[6247] - S_plus[6246] + S_minus[6246] = 0
+ dynamique[6247]: - S[6247] + S[6248] - S_plus[6247] + S_minus[6247] = 0
+ dynamique[6248]: - S[6248] + S[6249] - S_plus[6248] + S_minus[6248] = 0
+ dynamique[6249]: - S[6249] + S[6250] - S_plus[6249] + S_minus[6249] = 0
+ dynamique[6250]: - S[6250] + S[6251] - S_plus[6250] + S_minus[6250] = 0
+ dynamique[6251]: - S[6251] + S[6252] - S_plus[6251] + S_minus[6251] = 0
+ dynamique[6252]: - S[6252] + S[6253] - S_plus[6252] + S_minus[6252] = 0
+ dynamique[6253]: - S[6253] + S[6254] - S_plus[6253] + S_minus[6253] = 0
+ dynamique[6254]: - S[6254] + S[6255] - S_plus[6254] + S_minus[6254] = 0
+ dynamique[6255]: - S[6255] + S[6256] - S_plus[6255] + S_minus[6255] = 0
+ dynamique[6256]: - S[6256] + S[6257] - S_plus[6256] + S_minus[6256] = 0
+ dynamique[6257]: - S[6257] + S[6258] - S_plus[6257] + S_minus[6257] = 0
+ dynamique[6258]: - S[6258] + S[6259] - S_plus[6258] + S_minus[6258] = 0
+ dynamique[6259]: - S[6259] + S[6260] - S_plus[6259] + S_minus[6259] = 0
+ dynamique[6260]: - S[6260] + S[6261] - S_plus[6260] + S_minus[6260] = 0
+ SoC_min[0]: - 0.48 Nb + S[0] >= 0
+ SoC_min[6261]: - 0.48 Nb + S[6261] >= 0
+ SoC_max[6233]: - 2.16 Nb + S[6233] <= 0
+Bounds
+ Np free
+ Nb free
+ S[0] free
+ S[6233] free
+ S[6234] free
+ S[6235] free
+ S[6236] free
+ S[6237] free
+ S[6238] free
+ S[6239] free
+ S[6240] free
+ S[6241] free
+ S[6242] free
+ S[6243] free
+ S[6244] free
+ S[6245] free
+ S[6246] free
+ S[6247] free
+ S[6248] free
+ S[6249] free
+ S[6250] free
+ S[6251] free
+ S[6252] free
+ S[6253] free
+ S[6254] free
+ S[6255] free
+ S[6256] free
+ S[6257] free
+ S[6258] free
+ S[6259] free
+ S[6260] free
+ S[6261] free
+ S_plus[6233] free
+ S_plus[6234] free
+ S_plus[6235] free
+ S_plus[6236] free
+ S_plus[6237] free
+ S_plus[6238] free
+ S_plus[6239] free
+ S_plus[6240] free
+ S_plus[6241] free
+ S_plus[6242] free
+ S_plus[6243] free
+ S_plus[6244] free
+ S_plus[6245] free
+ S_plus[6246] free
+ S_plus[6247] free
+ S_plus[6248] free
+ S_plus[6249] free
+ S_plus[6250] free
+ S_plus[6251] free
+ S_plus[6252] free
+ S_plus[6253] free
+ S_plus[6254] free
+ S_plus[6255] free
+ S_plus[6256] free
+ S_plus[6257] free
+ S_plus[6258] free
+ S_plus[6259] free
+ S_plus[6260] free
+ S_minus[6233] free
+ S_minus[6234] free
+ S_minus[6235] free
+ S_minus[6236] free
+ S_minus[6237] free
+ S_minus[6238] free
+ S_minus[6239] free
+ S_minus[6240] free
+ S_minus[6241] free
+ S_minus[6242] free
+ S_minus[6243] free
+ S_minus[6244] free
+ S_minus[6245] free
+ S_minus[6246] free
+ S_minus[6247] free
+ S_minus[6248] free
+ S_minus[6249] free
+ S_minus[6250] free
+ S_minus[6251] free
+ S_minus[6252] free
+ S_minus[6253] free
+ S_minus[6254] free
+ S_minus[6255] free
+ S_minus[6256] free
+ S_minus[6257] free
+ S_minus[6258] free
+ S_minus[6259] free
+ S_minus[6260] free
+Generals
+ Np Nb
+End

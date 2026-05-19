@@ -1,9 +1,3 @@
-"""
-Dimensionnement optimal - Panneaux solaires & Batteries
-Ferme agricole à Estagel (Pyrénées-Orientales)
-Modèle : MILP résolu avec Gurobi
-"""
-
 import pandas as pd
 import numpy as np
 import gurobipy as gp
@@ -18,17 +12,16 @@ import matplotlib.pyplot as plt
 df_irr = pd.read_csv("irradiance.csv", sep=";")
 df_irr["time"] = pd.to_datetime(df_irr["time"])
 df_irr = df_irr.sort_values("time").reset_index(drop=True)
-G = df_irr["irradiancetotale"].astype(str).str.replace(",", ".").astype(float).values  # W/m², 8760 valeurs
+G = df_irr["irradiancetotale"].astype(str).str.replace(",", ".").astype(float).values  # KW/m²
 
 # --- Vitesse du vent (m/s) ---
 df_wind = pd.read_csv("wind_speed.csv", sep=";")
 df_wind["Time"] = pd.to_datetime(df_wind["Time"])
 df_wind = df_wind.sort_values("Time").reset_index(drop=True)
-# Virgule décimale → point décimal
 df_wind["Wind Speed"] = (
     df_wind["Wind Speed"].astype(str).str.replace(",", ".").astype(float)
 )
-v = df_wind["Wind Speed"].values  # m/s, 8760 valeurs
+v = df_wind["Wind Speed"].values  # m/s
 
 # =============================================================================
 # 2. PRODUCTION EOLIENNE  (courbe de puissance Hummer H25.0-100kW)
@@ -45,7 +38,7 @@ def wind_power_kw(v_arr):
         if vi < 1.0 or vi > 25:
             p[i] = 0.0
         elif vi <= 10.0:
-            # Polynôme fourni : 0.9924*v² + 0.0227*v + 0.1667  [kW]
+            # Polynôme: 0.9924*v² + 0.0227*v + 0.1667  [kW]
             p[i] = 0.9924 * vi**2 + 0.0227 * vi + 0.1667
         else:
             p[i] = P_nom_eol
@@ -68,7 +61,7 @@ profil_jour = np.array([
 
 jours_mois = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 
-# Répétition sur 365 jours → 8760 valeurs
+# Répétition sur 365 jours pour obtenir le profil annuel (8760 h)
 D = np.tile(profil_jour, 365)
 
 D_annuelle_kWh = D.sum()
@@ -108,13 +101,15 @@ curtail = model.addVars(T,  lb=0.0, name="curtail")   # surplus effacé (curtail
 
 # --- Fonction objectif ---
 # Minimisation du coût d'investissement (pondération par coût unitaire)
-# Coûts indicatifs : panneau ~200 €, batterie ~500 €
+# et pénalisation du curtailment.
+# Coûts indicatifs : panneau ~200 €, batterie ~500 €, curtailment ~1 €/kWh
 # Changez si vous avez des données précises.
-cout_panneau  = 200  # € par panneau
-cout_batterie = 440  # € par batterie
+cout_panneau   = 200  # € par panneau
+cout_batterie  = 440  # € par batterie
+cout_curtail   = 10   # € par kWh excédentaire effacé
 
 model.setObjective(
-    cout_panneau * Np + cout_batterie * Nb,
+    cout_panneau * Np + cout_batterie * Nb ,
     GRB.MINIMIZE
 )
 
@@ -122,13 +117,14 @@ model.setObjective(
 
 # C1 : Bilan énergétique — production + décharge = demande + charge + curtail
 model.addConstrs(
-    (P_sol_unit[t] * Np + W[t] + S_minus[t] - S_plus[t] - curtail[t] == D[t]
+    (P_sol_unit[t] * Np + W[t] + S_minus[t] - S_plus[t] - curtail[t] >=D[t]
      for t in range(T)),
     name="bilan"
 )
 
 # Fixer l'état de charge initial à 50% de la capacité utile
 model.addConstr(S[0] == 0.50 * C_b * Nb, name="SoC_initial")
+model.addConstr(Np  <= 490, name="limite de panneaux")  # pour éviter que le modèle n'exploite un panneau sans batterie
 # C2 : Dynamique du stock
 model.addConstrs(
     (S[t + 1] == S[t] - S_minus[t] + S_plus[t]
@@ -136,7 +132,7 @@ model.addConstrs(
     name="dynamique"
 )
 # C2b : état de charge final identique à l'initial pour l'équilibre annuel
-model.addConstr(S[T] == 0.50 * C_b * Nb, name="SoC_final")
+# model.addConstr(S[T] == 0.50 * C_b * Nb, name="SoC_final")
 # C2c : Limites de charge/décharge par batterie
 model.addConstrs(
     (S_plus[t] <= C_b * Nb for t in range(T)),
@@ -146,7 +142,7 @@ model.addConstrs(
     (S_minus[t] <= C_b * Nb for t in range(T)),
     name="discharge_limit"
 )
-
+model.addConstr(Nb<=1000, name="limite de batteries")  # pour éviter que le modèle n'exploite une batterie sans panneau
 # C3 : Bornes état de charge
 model.addConstrs(
     (S[t] >= SoC_min * C_b * Nb for t in range(T + 1)),
