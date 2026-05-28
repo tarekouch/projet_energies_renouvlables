@@ -24,10 +24,8 @@ df_wind["Wind Speed"] = (
 v = df_wind["Wind Speed"].values  # m/s
 
 # =============================================================================
-# 2. PRODUCTION EOLIENNE  (courbe de puissance Hummer H25.0-100kW)
+# 2. PRODUCTION EOLIENNE 
 # =============================================================================
-# Caractéristiques : D = 25 m, P_nom = 100 kW
-
 
 P_nom_eol = 100.0   # kW
 
@@ -38,13 +36,13 @@ def wind_power_kw(v_arr):
         if vi < 1.0 or vi > 25:
             p[i] = 0.0
         elif vi <= 10.0:
-            # Polynôme: 0.9924*v² + 0.0227*v + 0.1667  [kW]
+            # Polynôme: 0.9924*v² + 0.0227*v + 0.1667 
             p[i] = 0.9924 * vi**2 + 0.0227 * vi + 0.1667
         else:
             p[i] = P_nom_eol
     return p
 
-W = wind_power_kw(v)   # kWh produits par l'éolienne à chaque heure (pas = 1h)
+W = wind_power_kw(v)   # kWh produits par l'éolienne à chaque heure 
 
 # =============================================================================
 # 3. DEMANDE ELECTRIQUE DE LA FERME  (kWh/h)
@@ -61,7 +59,7 @@ profil_jour = np.array([
 
 jours_mois = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 
-# Répétition sur 365 jours pour obtenir le profil annuel (8760 h)
+# Répétition sur 365 jours pour obtenir le profil annuel
 D = np.tile(profil_jour, 365)
 
 D_annuelle_kWh = D.sum()
@@ -70,7 +68,7 @@ print(f"Consommation annuelle : {D_annuelle_kWh:,.0f} kWh")
 T = len(D)   # 8760
 
 # =============================================================================
-# 4. PARAMETRES TECHNIQUES
+# 4. PARAMETRES 
 # =============================================================================
 eta_p       = 0.18    # rendement panneau solaire
 A_p         = 1.0     # surface d'un panneau [m²]
@@ -80,7 +78,6 @@ SoC_max     = 0.90    # état de charge maximum
 delta_t     = 1.0     # pas de temps [h]
 
 # Production solaire unitaire (1 panneau) à chaque heure [kWh]
-# Le fichier irradiance.csv fournit déjà l'irradiance en kW/m².
 P_sol_unit = eta_p * A_p * G * delta_t   # G en kW/m² → kWh
 
 # =============================================================================
@@ -88,7 +85,7 @@ P_sol_unit = eta_p * A_p * G * delta_t   # G en kW/m² → kWh
 # =============================================================================
 model = gp.Model("Dimensionnement_Ferme")
 model.Params.LogToConsole = 1
-model.Params.TimeLimit    = 300   # 5 min max
+model.Params.TimeLimit    = 300  
 
 # --- Variables de décision ---
 Np  = model.addVar(vtype=GRB.INTEGER, lb=0, name="Np")   # nb panneaux
@@ -100,16 +97,12 @@ S_minus = model.addVars(T,  lb=0.0, name="S_minus")   # énergie soutirée [kWh]
 curtail = model.addVars(T,  lb=0.0, name="curtail")   # surplus effacé (curtailment) [kWh]
 
 # --- Fonction objectif ---
-# Minimisation du coût d'investissement (pondération par coût unitaire)
-# et pénalisation du curtailment.
-# Coûts indicatifs : panneau ~200 €, batterie ~500 €, curtailment ~1 €/kWh
-# Changez si vous avez des données précises.
-cout_panneau   = 200  # € par panneau
-cout_batterie  = 440  # € par batterie
-cout_curtail   = 10   # € par kWh excédentaire effacé
+cout_panneau   = 200 
+cout_batterie  = 440  
+cout_curtail   = 10  
 
 model.setObjective(
-    cout_panneau * Np + cout_batterie * Nb ,
+    cout_panneau * Np + cout_batterie * Nb + cout_curtail * gp.quicksum(curtail[t] for t in range(T)),
     GRB.MINIMIZE
 )
 
@@ -122,9 +115,9 @@ model.addConstrs(
     name="bilan"
 )
 
-# Fixer l'état de charge initial à 50% de la capacité utile
-model.addConstr(S[0] == 0.50 * C_b * Nb, name="SoC_initial")
-model.addConstr(Np  <= 490, name="limite de panneaux")  # pour éviter que le modèle n'exploite un panneau sans batterie
+# Fixer l'état de charge initial
+model.addConstr(S[0] == 0.21 * C_b * Nb, name="SoC_initial")
+#model.addConstr(Np  <= 490, name="limite de panneaux")
 # C2 : Dynamique du stock
 model.addConstrs(
     (S[t + 1] == S[t] - S_minus[t] + S_plus[t]
@@ -142,7 +135,7 @@ model.addConstrs(
     (S_minus[t] <= C_b * Nb for t in range(T)),
     name="discharge_limit"
 )
-model.addConstr(Nb<=1000, name="limite de batteries")  # pour éviter que le modèle n'exploite une batterie sans panneau
+model.addConstr(Nb<=1000, name="limite de batteries")  
 # C3 : Bornes état de charge
 model.addConstrs(
     (S[t] >= SoC_min * C_b * Nb for t in range(T + 1)),
@@ -173,8 +166,6 @@ if model.Status in (GRB.OPTIMAL, GRB.TIME_LIMIT):
     print(f"  Nombre de batteries          : {Nb_opt}")
     print(f"  Surface solaire totale       : {Np_opt} m²")
     print(f"  Capacité batterie totale     : {Nb_opt * C_b:.1f} kWh")
-    print(f"  SoC utile                    : [{SoC_min*100:.0f}% – {SoC_max*100:.0f}%]  "
-          f"→ {Nb_opt * C_b * (SoC_max - SoC_min):.1f} kWh utiles")
     print(f"  Coût d'investissement estimé : {cout_total:,.0f} €")
     print("=" * 50)
 
@@ -207,7 +198,8 @@ if model.Status in (GRB.OPTIMAL, GRB.TIME_LIMIT):
                 color="steelblue", alpha=0.8)
         ax.plot(range(len(idx)), D[idx], label="Demande" if nom == "Hiver (jan)" else "_",
                 color="tomato", lw=1.5)
-        break   # on affiche seulement hiver pour lisibilité
+        break   
+    
     ax.set_title("Puissances – semaine de janvier (168 h)")
     ax.set_ylabel("kWh/h")
     ax.legend()
